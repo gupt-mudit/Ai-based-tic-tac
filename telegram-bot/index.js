@@ -12,16 +12,19 @@ const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 app.post('/webhook', async (req, res) => {
     const message = req.body.message;
 
-    // Handle text messages
     if (message && message.text) {
         const chatId = message.chat.id;
         const replyText = `You said: ${message.text}`;
 
         // Send a reply back to the user
-        await axios.post(`${TELEGRAM_API}/sendMessage`, {
-            chat_id: chatId,
-            text: replyText,
-        });
+        try {
+            await axios.post(`${TELEGRAM_API}/sendMessage`, {
+                chat_id: chatId,
+                text: replyText,
+            });
+        } catch (error) {
+            console.error('Error sending message to Telegram', error);
+        }
     }
 
     res.sendStatus(200);
@@ -31,7 +34,6 @@ app.get('/', async (req, res) => {
     res.send('Hello');
 })
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+
+// Export the app for Vercel
+module.exports = app;
