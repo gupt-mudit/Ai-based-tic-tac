@@ -1,17 +1,17 @@
-// server.js
+// index.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 
 const app = express();
 const TELEGRAM_TOKEN = '8067174580:AAFkJbfepoY1N_thlrgs2t0HZinl1DLpUCo'; // Replace with your bot's token
-const GAME_URL = 'ai-based-tic-tac.vercel.app'; // Replace with the URL of your frontend game
+const GAME_URL = 'https://ai-based-tic-tac.vercel.app'; // Full URL of your frontend game
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
 // Endpoint to handle updates from Telegram
-app.post(`/webhook/${TELEGRAM_TOKEN}`, async (req, res) => {
+app.post(`/webhook`, async (req, res) => {
     const update = req.body;
 
     if (update.message) {
@@ -24,6 +24,7 @@ app.post(`/webhook/${TELEGRAM_TOKEN}`, async (req, res) => {
     res.sendStatus(200); // Respond to Telegram's request
 });
 
+// Simple health check for the root endpoint
 app.get("/", (req, res) => {
     res.send("hello");
 })
