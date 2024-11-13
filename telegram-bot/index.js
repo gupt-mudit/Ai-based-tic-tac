@@ -1,39 +1,59 @@
+// server.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 
 const app = express();
+const TELEGRAM_TOKEN = '8067174580:AAFkJbfepoY1N_thlrgs2t0HZinl1DLpUCo'; // Replace with your bot's token
+const GAME_URL = 'ai-based-tic-tac.vercel.app'; // Replace with the URL of your frontend game
+
+// Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
-const BOT_TOKEN = '8067174580:AAFkJbfepoY1N_thlrgs2t0HZinl1DLpUCo'; // Replace with your actual bot token
-const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+// Endpoint to handle updates from Telegram
+app.post(`/webhook/${TELEGRAM_TOKEN}`, async (req, res) => {
+    const update = req.body;
 
-// Endpoint to receive updates from Telegram
-app.post('/webhook', async (req, res) => {
-    const message = req.body.message;
+    if (update.message) {
+        const chatId = update.message.chat.id;
 
-    if (message && message.text) {
-        const chatId = message.chat.id;
-        const replyText = `You said: ${message.text}`;
-
-        // Send a reply back to the user
-        try {
-            await axios.post(`${TELEGRAM_API}/sendMessage`, {
-                chat_id: chatId,
-                text: replyText,
-            });
-        } catch (error) {
-            console.error('Error sending message to Telegram', error);
-        }
+        // Send game WebView link to user
+        await sendWebView(chatId);
     }
 
-    res.sendStatus(200);
+    res.sendStatus(200); // Respond to Telegram's request
 });
 
-app.get('/', async (req, res) => {
-    res.send('Hello');
+app.get("/", (req, res) => {
+    res.send("hello");
 })
 
+// Function to send WebView game link to the user
+async function sendWebView(chatId) {
+    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
 
-// Export the app for Vercel
+    const message = {
+        chat_id: chatId,
+        text: "Click below to play the game directly in Telegram!",
+        reply_markup: {
+            inline_keyboard: [
+                [
+                    {
+                        text: "Play Game",
+                        web_app: {
+                            url: GAME_URL, // The URL of your game
+                        }
+                    }
+                ]
+            ]
+        }
+    };
+
+    try {
+        await axios.post(url, message); // Send the message with the WebView button
+    } catch (error) {
+        console.error("Error sending message: ", error);
+    }
+}
+
 module.exports = app;
