@@ -20,6 +20,49 @@ $(".level").each(function () {
 	});
 });
 
+$(".postScore").each(function () {
+	var $this = $(this);
+	$this.click(function () {
+		console.log("score posted");
+		const databaseUrl = "https://react-http-1c8e0-default-rtdb.firebaseio.com";
+		const entryPath = "/entries.json";
+		const data = {
+			name: "Jane Doe",
+			age: 28,
+			occupation: "Software Engineer",
+			email: "jane.doe@example.com",
+			score: 1,
+		};
+		console.log(data);
+
+		console.log("inside function");
+		fetch(`${databaseUrl}${entryPath}`, {
+			method: "POST", // Use POST to add new entries
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(data),
+		})
+			.then((response) => {
+				console.log("response");
+				console.log(response);
+				if (!response.ok) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				}
+				return response.json();
+			})
+			.then((data) => {
+				document.getElementById(
+					"output"
+				).textContent = `Entry posted successfully! ID: ${data.name}`;
+			})
+			.catch((error) => {
+				console.error("Error posting data:", error);
+				document.getElementById("output").textContent = "Error posting data.";
+			});
+	});
+});
+
 $(".playAgain").each(function () {
 	var $this = $(this);
 	$this.click(function () {
